@@ -2,13 +2,13 @@ use std::fs;
 
 fn main() {
     let inputs = lines_to_num_vec(&load_input("inputs.txt"));
-    let inc_counts = count_increases(&inputs);
+    let inc_counts = count_increases(&inputs, 2);
 
     println!("{} increases", inc_counts);
 }
 
-fn count_increases(inputs: &[u16]) -> usize {
-    inputs.windows(2).filter(|ints| ints[1] > ints[0]).count()
+fn count_increases(inputs: &[u16], window_size: usize) -> usize {
+    inputs.windows(window_size).filter(|ints| ints[1] > ints[0]).count()
 }
 
 fn load_input(fname: &str) -> String {
@@ -25,7 +25,7 @@ mod tests {
 
     #[test]
     fn count_increases_with_only_one_element_in_list() {
-        let count = count_increases(&[1]);
+        let count = count_increases(&[1], 2);
 
         assert_eq!(count, 0);
     }
@@ -33,14 +33,15 @@ mod tests {
     #[test]
     fn count_increases_with_no_elements_in_list() {
         let inputs: Vec<u16> = Vec::new();
-        let count = count_increases(&inputs);
+        let count = count_increases(&inputs, 2);
 
         assert_eq!(count, 0);
     }
 
     #[test]
-    fn count_increases_with_samples_given_in_challenge() {
-        let count = count_increases(&[199, 200, 208, 210, 200, 207, 240, 269, 260, 263]);
+    fn count_increases_with_samples_given_in_challenge_1() {
+        let inputs = vec![199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
+        let count = count_increases(&inputs, 2);
 
         assert_eq!(count, 7);
     }
