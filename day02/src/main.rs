@@ -25,6 +25,12 @@ impl Position {
             _ => { self.horizontal += count; },
         }
     }
+
+    pub fn update_many(&mut self, commands: &str) {
+        for command in commands.lines() {
+            self.update(command);
+        }
+    }
 }
 
 #[cfg(test)]
@@ -59,5 +65,25 @@ mod tests {
 
         assert_eq!(pos.horizontal, 10);
         assert_eq!(pos.depth, 17);
+    }
+
+    #[test]
+    fn multiple_updates() {
+        let mut pos = Position::new();
+        pos.update_many("forward 5\ndown 4\nup 3\nforward 2");
+
+        assert_eq!(pos.horizontal, 7);
+        assert_eq!(pos.depth, 1);
+    }
+
+    #[test]
+    fn multiple_updates_using_challenge_1_inputs() {
+        let cmds = "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2";
+        let mut pos = Position::new();
+
+        pos.update_many(cmds);
+
+        assert_eq!(pos.horizontal, 15);
+        assert_eq!(pos.depth, 10);
     }
 }
