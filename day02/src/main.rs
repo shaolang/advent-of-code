@@ -1,10 +1,17 @@
+use std::fs;
+
 fn main() {
-    println!("Hello, world!");
+    let mut pos = Position::new();
+    let inputs = load_file_inputs("inputs.txt");
+
+    pos.update_many(&inputs);
+
+    print!("horizontal * depth = {}", pos.horizontal * pos.depth);
 }
 
 struct Position {
-    pub horizontal: i16,
-    pub depth: i16,
+    pub horizontal: i32,
+    pub depth: i32,
 }
 
 impl Position {
@@ -17,7 +24,7 @@ impl Position {
 
     pub fn update(&mut self, command: &str) {
         let inputs: Vec<&str> = command.split(' ').collect();
-        let count: i16 = inputs[1].parse().unwrap();
+        let count: i32 = inputs[1].parse().unwrap();
 
         match inputs[0] {
             "up" => { self.depth -= count; },
@@ -31,6 +38,10 @@ impl Position {
             self.update(command);
         }
     }
+}
+
+fn load_file_inputs(fname: &str) -> String {
+    fs::read_to_string(fname).unwrap()
 }
 
 #[cfg(test)]
