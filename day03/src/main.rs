@@ -18,6 +18,10 @@ fn gamma_bit(vs: &[u16], idx: u16) -> u16 {
     if (on_bits * 2) >= vs.len() { 1 } else { 0 }
 }
 
+fn epsilon(v: u16) -> u16 {
+    !v
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -52,5 +56,11 @@ mod tests {
             0b00111, 0b11100, 0b10000, 0b11001, 0b00010, 0b01010];
 
         assert_eq!(gamma(vs), 22);
+    }
+
+    #[test]
+    fn epsilon_inverse_given_value() {
+        assert_eq!(epsilon(1), 0b1111_1111_1111_1110);
+        assert_eq!(epsilon(2), 0b1111_1111_1111_1101);
     }
 }
