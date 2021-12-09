@@ -3,11 +3,13 @@ fn main() {
     println!("{:?}", vs);
 }
 
+
 fn gamma(vs: &[u16]) -> u16 {
     (0..16_u16)
         .map(|i| gamma_bit(vs, i) << (15 - i))
         .sum()
 }
+
 
 fn gamma_bit(vs: &[u16], idx: u16) -> u16 {
     let on_bits = vs
@@ -18,8 +20,14 @@ fn gamma_bit(vs: &[u16], idx: u16) -> u16 {
     if (on_bits * 2) >= vs.len() { 1 } else { 0 }
 }
 
+
 fn epsilon(v: u16) -> u16 {
     !v
+}
+
+
+fn str_binary_to_u16(s: &str) -> u16 {
+    u16::from_str_radix(s, 2).unwrap()
 }
 
 #[cfg(test)]
@@ -62,5 +70,12 @@ mod tests {
     fn epsilon_inverse_given_value() {
         assert_eq!(epsilon(1), 0b1111_1111_1111_1110);
         assert_eq!(epsilon(2), 0b1111_1111_1111_1101);
+    }
+
+    #[test]
+    fn str_binary_to_u16_processes_input_as_binary_representation() {
+        let s = "100";
+
+        assert_eq!(str_binary_to_u16(s), 0b100);
     }
 }
