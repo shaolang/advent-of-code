@@ -1,6 +1,18 @@
+use std::fs;
+
 fn main() {
-    let vs = &[0b1, 0b0, 0b1];
-    println!("{:?}", vs);
+    let contents = load_inputs("inputs.txt");
+    let len = &contents.lines().next().unwrap().len();
+    let inputs = str_to_u16_vector(&contents);
+    let gamma_value = gamma(&inputs);
+
+    println!("gamma * epsilon = {}",
+             gamma_value as u32 * epsilon(gamma_value, *len) as u32);
+}
+
+
+fn load_inputs(fname: &str) -> String {
+    fs::read_to_string(fname).unwrap()
 }
 
 
@@ -21,13 +33,14 @@ fn gamma_bit(vs: &[u16], idx: u16) -> u16 {
 }
 
 
-fn epsilon(v: u16) -> u16 {
-    !v
+fn epsilon(v: u16, len: usize) -> u16 {
+    let shifts = 16 - len as u16;
+    !v << shifts >> shifts
 }
 
 
-fn str_binary_to_u16(s: &str) -> u16 {
-    u16::from_str_radix(s, 2).unwrap()
+fn str_to_u16_vector(s: &str) -> Vec<u16> {
+    s.lines().map(|x| u16::from_str_radix(x, 2).unwrap()).collect()
 }
 
 #[cfg(test)]
@@ -68,14 +81,14 @@ mod tests {
 
     #[test]
     fn epsilon_inverse_given_value() {
-        assert_eq!(epsilon(1), 0b1111_1111_1111_1110);
-        assert_eq!(epsilon(2), 0b1111_1111_1111_1101);
+        assert_eq!(epsilon(0b01, 2), 0b10);
+        assert_eq!(epsilon(0b0010, 4), 0b1101);
     }
 
     #[test]
-    fn str_binary_to_u16_processes_input_as_binary_representation() {
-        let s = "100";
+    fn str_to_u16_vector_converts_strs_to_vector_of_numbers() {
+        let s = "100\n010\n001";
 
-        assert_eq!(str_binary_to_u16(s), 0b100);
+        assert_eq!(str_to_u16_vector(s), vec![4, 2, 1]);
     }
 }
