@@ -1,17 +1,24 @@
 use std::fs;
 
 fn main() {
-    let mut pos = Position::new();
     let inputs = load_file_inputs("inputs.txt");
 
+    println!("without aim: horizontal * depth = {}",
+           solve(&mut Position::new(), &inputs));
+    println!("   with aim: horizontal * depth = {}",
+           solve(&mut Position::new_with_aim(), &inputs));
+}
+
+fn solve(pos: &mut Position, inputs: &str) -> i32 {
     pos.update_many(&inputs);
 
-    print!("horizontal * depth = {}", pos.horizontal * pos.depth);
+    pos.horizontal * pos.depth
 }
 
 struct Position {
     pub horizontal: i32,
     pub depth: i32,
+    aim: i32,
 }
 
 impl Position {
@@ -19,6 +26,15 @@ impl Position {
         Position {
             horizontal: 0,
             depth: 0,
+            aim: -1,
+        }
+    }
+
+    pub fn new_with_aim() -> Self {
+        Position {
+            horizontal: 0,
+            depth: 0,
+            aim: 0,
         }
     }
 
@@ -26,10 +42,21 @@ impl Position {
         let inputs: Vec<&str> = command.split(' ').collect();
         let count: i32 = inputs[1].parse().unwrap();
 
-        match inputs[0] {
-            "up" => { self.depth -= count; },
-            "down" => { self.depth += count; },
-            _ => { self.horizontal += count; },
+        if self.aim < 0 {
+            match inputs[0] {
+                "up" =>   { self.depth -= count; },
+                "down" => { self.depth += count; },
+                _ =>      { self.horizontal += count; },
+            }
+        } else {
+            match inputs[0] {
+                "up" =>   { self.aim -= count; },
+                "down" => { self.aim += count; },
+                _ =>      {
+                    self.horizontal += count;
+                    self.depth += count * self.aim;
+                }
+            }
         }
     }
 
@@ -49,7 +76,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn move_forward_by_5() {
+    fn no_aim_move_forward_by_5() {
         let mut pos = Position::new();
         pos.update("forward 5");
 
@@ -58,7 +85,7 @@ mod tests {
     }
 
     #[test]
-    fn move_down_by_5() {
+    fn no_aim_move_down_by_5() {
         let mut pos = Position::new();
         pos.update("down 5");
 
@@ -67,7 +94,7 @@ mod tests {
     }
 
     #[test]
-    fn move_up_by_3() {
+    fn no_aim_move_up_by_3() {
         let mut pos = Position::new();
         pos.horizontal = 10;
         pos.depth = 20;
@@ -79,7 +106,7 @@ mod tests {
     }
 
     #[test]
-    fn multiple_updates() {
+    fn no_aim_multiple_updates() {
         let mut pos = Position::new();
         pos.update_many("forward 5\ndown 4\nup 3\nforward 2");
 
@@ -88,7 +115,7 @@ mod tests {
     }
 
     #[test]
-    fn multiple_updates_using_challenge_1_inputs() {
+    fn no_aim_multiple_updates_using_challenge_1_inputs() {
         let cmds = "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2";
         let mut pos = Position::new();
 
@@ -96,5 +123,44 @@ mod tests {
 
         assert_eq!(pos.horizontal, 15);
         assert_eq!(pos.depth, 10);
+    }
+
+    #[test]
+    fn with_aim_move_forward_by_5() {
+        let mut pos = Position::new_with_aim();
+        pos.update("forward 5");
+
+        assert_eq!(pos.horizontal, 5);
+        assert_eq!(pos.depth, 0);
+    }
+
+    #[test]
+    fn with_aim_move_down_by_10() {
+        let mut pos = Position::new_with_aim();
+        pos.update("down 10");
+
+        assert_eq!(pos.horizontal, 0);
+        assert_eq!(pos.depth, 0);
+    }
+
+    #[test]
+    fn with_aim_move_up_by_3() {
+        let mut pos = Position::new_with_aim();
+        pos.depth = 20;
+
+        pos.update("up 3");
+
+        assert_eq!(pos.depth, 20);
+    }
+
+    #[test]
+    fn with_aim_multiple_updates_using_challenge_2_inputs() {
+        let cmds = "forward 5\ndown 5\nforward 8\nup 3\ndown 8\nforward 2";
+        let mut pos = Position::new_with_aim();
+
+        pos.update_many(cmds);
+
+        assert_eq!(pos.horizontal, 15);
+        assert_eq!(pos.depth, 60);
     }
 }
